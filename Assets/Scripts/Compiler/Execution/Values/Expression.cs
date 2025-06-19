@@ -17,9 +17,16 @@ public class Expression : IValue
 {
     public IValue left;
     public IValue right;
-    public ExpressionType comparisonType;
+    public ExpressionType expressionType;
 
-    public int Get() => comparisonType switch
+    public Expression(ExpressionType expressionType, IValue left, IValue right)
+    {
+        this.left = left;
+        this.right = right;
+        this.expressionType = expressionType;
+    }
+
+    public int Get() => expressionType switch
     {
         ExpressionType.Equal => left.Get() == right.Get() ? 1 : 0,
         ExpressionType.NotEqual => left.Get() != right.Get() ? 1 : 0,

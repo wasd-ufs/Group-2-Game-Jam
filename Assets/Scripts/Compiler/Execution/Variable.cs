@@ -1,7 +1,7 @@
 public enum VariableType
 {
-    Player1Life,
-    Player2Life,
+    Player1Energy,
+    Player2Energy,
     Player1CardCount,
     Player2CardCount,
     Variable1,
@@ -18,8 +18,8 @@ public class Variable : IValue
 
     public int Get() => variableType switch
     {
-        VariableType.Player1Life => PlayerVariables.Player1Health,
-        VariableType.Player2Life => PlayerVariables.Player2Health,
+        VariableType.Player1Energy => PlayerVariables.Player1Energy,
+        VariableType.Player2Energy => PlayerVariables.Player2Energy,
         VariableType.Player1CardCount => PlayerVariables.Player1CardCount,
         VariableType.Player2CardCount => PlayerVariables.Player2CardCount,
         VariableType.Variable1 => GlobalVariables.variable1,
@@ -33,11 +33,11 @@ public class Variable : IValue
     {
         switch (variableType)
         {
-            case VariableType.Player1Life:
-                PlayerVariables.Player1Health = value;
+            case VariableType.Player1Energy:
+                PlayerVariables.Player1Energy = value;
                 break;
-            case VariableType.Player2Life:
-                PlayerVariables.Player2Health = value;
+            case VariableType.Player2Energy:
+                PlayerVariables.Player2Energy = value;
                 break;
             case VariableType.Player1CardCount:
                 PlayerVariables.Player1CardCount = value;

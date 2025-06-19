@@ -4,6 +4,12 @@ public class Loop : IExecutable
 {
     public IExecutable Executable;
     public IValue Condition;
+
+    public Loop(IExecutable executable, IValue condition)
+    {
+        Executable = executable;
+        Condition = condition;
+    }
     
     public bool Execute()
     {

@@ -2,9 +2,19 @@ using System.Collections.Generic;
 
 public class Scope : IExecutable
 {
-    public List<IExecutable> executables;
+    public List<IExecutable> executables = new();
 
-    public void Insert(IExecutable executable)
+    public Scope()
+    {
+        executables = new List<IExecutable>();
+    }
+
+    public void Clear()
+    {
+        executables.Clear();
+    }
+
+    public void Add(IExecutable executable)
     {
         executables.Add(executable);
     }
