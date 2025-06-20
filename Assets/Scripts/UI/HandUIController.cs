@@ -4,6 +4,8 @@ using UnityEngine.UI;
 
 public class HandUIController : MonoBehaviour
 {
+
+
     [Header("Config")]
     public Transform handContainer; // Referência ao HandUI (pai das cartas)
     public GameObject cardPrefab;   // Prefab da carta
