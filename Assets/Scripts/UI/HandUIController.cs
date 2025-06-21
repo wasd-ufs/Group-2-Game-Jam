@@ -11,13 +11,14 @@ public class HandUIController : MonoBehaviour
     public GameObject cardPrefab;   // Prefab da carta
 
     private List<GameObject> handCards = new List<GameObject>();
+    private List<GameObject> selectedCards = new List<GameObject>();
 
     // Adiciona uma nova carta à mão
     public void AddCard(CardData cardData)
     {
         GameObject newCard = Instantiate(cardPrefab, handContainer);
         CardUI cardUI = newCard.GetComponent<CardUI>();
-        cardUI.Setup(cardData);
+        cardUI.Setup(cardData, this);
         handCards.Add(newCard);
     }
 
@@ -39,5 +40,25 @@ public class HandUIController : MonoBehaviour
             Destroy(card);
         }
         handCards.Clear();
+    }
+
+    public void SelectCard(CardUI card)
+    {
+        selectedCards.Add(card.gameObject);
+    }
+
+    public void DeselectCard(CardUI card)
+    {
+        selectedCards.Remove(card.gameObject);
+    }
+
+    public List<CardUI> GetSelectedCards()
+    {
+        List<CardUI> selectedCardUIs = new List<CardUI>();
+        foreach (var card in selectedCards)
+        {
+            selectedCardUIs.Add(card.GetComponent<CardUI>());
+        }
+        return selectedCardUIs;
     }
 }

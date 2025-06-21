@@ -9,6 +9,8 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     public TMP_Text cardText;
     private CardData cardData;
 
+    private HandUIController originHand;
+
     private Vector3 originalScale;
 
     private Canvas canvas;
@@ -23,11 +25,12 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
         originalScale = transform.localScale;
     }
 
-    public void Setup(CardData data)
+    public void Setup(CardData data, HandUIController handUIController)
     {
         cardData = data;
         cardText.text = data.cardText;
         artImage.sprite = data.cardSprite;
+        originHand = handUIController;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -47,6 +50,7 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
 
     public void OnPointerClick(PointerEventData eventData)
     {
+        originHand.SelectCard(this);
         isSelected = !isSelected;
         UpdateVisualFeedback();
     }
@@ -68,7 +72,13 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
 
     public void Deselect()
     {
+        originHand.DeselectCard(this);
         isSelected = false;
         UpdateVisualFeedback();
+    }
+
+    public CardData GetCardData()
+    {
+        return cardData;
     }
 }

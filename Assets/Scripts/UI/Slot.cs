@@ -10,10 +10,9 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     public GameObject inputPanel;
     public TMP_InputField nameInputField;
     public TMP_Text functionNameText;
+    public HandUIController originHand;
 
-    [Header("Card Placement")]
-    public Transform cardContainer;
-
+    [Header("Function Name")]
     private string functionName = "";
 
     [Header("Confirm Button (inside Input Panel)")]
@@ -50,14 +49,10 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         functionNameText.text = functionName;
 
         // Move selected cards to the slot
-        CardUI[] allCards = FindObjectsOfType<CardUI>();
-        foreach (CardUI card in allCards)
+        foreach (CardUI card in originHand.GetSelectedCards())
         {
-            if (card.IsSelected())
-            {
-                card.transform.SetParent(cardContainer);
-                card.Deselect();
-            }
+            DisplayCode(card);
+            GameObject.Destroy(card.gameObject); // Destroy the card GameObject
         }
 
         inputPanel.SetActive(false);
@@ -66,5 +61,10 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     public string GetFunctionName()
     {
         return functionName;
+    }
+
+    private void DisplayCode(CardUI card)
+    {
+        Debug.Log($"Displaying code for card: {card.GetCardData().cardText}");
     }
 }
