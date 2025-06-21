@@ -52,13 +52,13 @@ public class HandUIController : MonoBehaviour
         selectedCards.Remove(card.gameObject);
     }
 
-    public List<CardUI> GetSelectedCards()
+    public List<GameObject> GetSelectedCards()
     {
-        List<CardUI> selectedCardUIs = new List<CardUI>();
+        List<GameObject> selectedCardsRequested = new List<GameObject>();
         foreach (var card in selectedCards)
         {
-            selectedCardUIs.Add(card.GetComponent<CardUI>());
+            selectedCardsRequested.Add(card);
         }
-        return selectedCardUIs;
+        return selectedCardsRequested;
     }
 }

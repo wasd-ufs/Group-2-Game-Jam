@@ -2,14 +2,18 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 
 public class Slot : MonoBehaviour, IPointerClickHandler
 {
+    private List<CardUI> cardsInSlot = new List<CardUI>();
+
     [Header("UI References")]
     public GameObject inputPanel;
     public TMP_InputField nameInputField;
     public TMP_Text functionNameText;
+    public TMP_Text codeField;
     public HandUIController originHand;
 
     [Header("Function Name")]
@@ -27,7 +31,12 @@ public class Slot : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (inputPanel != null)
+        if (inputPanel == null)
+        {
+            Debug.LogWarning("Input Panel is not assigned in the Slot component.");
+            return;
+        }
+        if (IsEmpty())
         {
             inputPanel.SetActive(true);
             nameInputField.text = "";
@@ -36,6 +45,10 @@ public class Slot : MonoBehaviour, IPointerClickHandler
             // Clean previous listeners and add this slot's own ConfirmFusionName
             confirmButton.onClick.RemoveAllListeners();
             confirmButton.onClick.AddListener(ConfirmFunctionName);
+        }
+        else
+        {
+            ShowCardsInSlot();
         }
     }
 
@@ -49,10 +62,11 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         functionNameText.text = functionName;
 
         // Move selected cards to the slot
-        foreach (CardUI card in originHand.GetSelectedCards())
+        foreach (GameObject card in originHand.GetSelectedCards())
         {
             DisplayCode(card);
-            GameObject.Destroy(card.gameObject); // Destroy the card GameObject
+            cardsInSlot.Add(card.GetComponent<CardUI>());
+            originHand.RemoveCard(card);
         }
 
         inputPanel.SetActive(false);
@@ -63,8 +77,23 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         return functionName;
     }
 
-    private void DisplayCode(CardUI card)
+    private void DisplayCode(GameObject card)
     {
-        Debug.Log($"Displaying code for card: {card.GetCardData().cardText}");
+        codeField.text += $"{card.GetComponent<CardUI>().GetCardData().cardText}\n";
+    }
+
+    public bool IsEmpty()
+    {
+        return cardsInSlot.Count == 0;
+    }
+
+    private void ShowCardsInSlot()
+    {
+        string cardNames = "Cards in Slot:\n";
+        foreach (CardUI card in cardsInSlot)
+        {
+            cardNames += $"{card.GetCardData().cardText}\n";
+        }
+        Debug.Log(cardNames);
     }
 }
