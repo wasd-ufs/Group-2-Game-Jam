@@ -4,25 +4,21 @@ public class IncrementTest : MonoBehaviour
 {
     void Start()
     {
-        TokenStackAnalyzer analyzer = new TokenStackAnalyzer();
-        
-        Debug.Log("Current Card Count is: " + PlayerVariables.Player1CardCount);
-        analyzer.TryPush(new PlusEqualsToken());
-        analyzer.TryPush(new VariableToken(VariableType.Player1CardCount));
-        analyzer.TryPush(new ValueToken(5));
-        
-        analyzer.TryPush(new PlusEqualsToken());
-        analyzer.TryPush(new VariableToken(VariableType.Player1CardCount));
-        analyzer.TryPush(new VariableToken(VariableType.Player1CardCount));
-        
-        IExecutable program = analyzer.GetProgram();
-        if (program == null)
-        {
-            Debug.LogError("Tu é burro pra krl ne");
-            return;
-        }
+        var analyzer = new Parser();
 
-        program.Execute();
-        Debug.Log("After running the program, Card Count is: " + PlayerVariables.Player1CardCount);
+        analyzer.TryPush(new ForToken(new Constant(0), new Constant(3), new Constant(1)));
+        analyzer.TryPush(new VariableToken(VariableType.Player1Energy));
+        analyzer.TryPush(new ConditionalToken(ExpressionType.LessThan, new Variable(VariableType.Player1Energy), new Constant(2)));
+        analyzer.TryPush(new AssignToken(new Variable(VariableType.Player1Energy), new Expression(ExpressionType.Multiply, new Variable(VariableType.Player1Energy), new Constant(2))));
+        
+        var program = analyzer.GetProgram();
+
+        CodeGenerator generator = new CodeGenerator();
+        Code code = generator.Generate(program);
+        Debug.Log(code.GetFullText());
+        
+        Interpreter interpreter = new Interpreter();
+        interpreter.OnNodeEntered = node => Debug.Log(code.GetLineOfNode(node));
+        interpreter.Interpret(program);
     }
 }
