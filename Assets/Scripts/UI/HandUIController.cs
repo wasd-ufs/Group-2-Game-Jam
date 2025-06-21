@@ -28,17 +28,13 @@ public class HandUIController : MonoBehaviour
         if (handCards.Contains(card))
         {
             handCards.Remove(card);
-            Destroy(card);
         }
     }
 
     // Remove todas as cartas
     public void ClearHand()
     {
-        foreach (var card in handCards)
-        {
-            Destroy(card);
-        }
+
         handCards.Clear();
     }
 

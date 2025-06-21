@@ -10,32 +10,58 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     private List<CardUI> cardsInSlot = new List<CardUI>();
 
     [Header("UI References")]
-    public GameObject inputPanel;
-    public TMP_InputField nameInputField;
-    public TMP_Text functionNameText;
-    public TMP_Text codeField;
+    private GameObject inputPanel;
+    private TMP_InputField nameInputField;
+    private TMP_Text codeField;
+    private GameObject showPanel;
+    private GameObject showPanelCardContainer;
     public HandUIController originHand;
+    public GameObject cardPrefab; // Prefab for displaying cards in the slot
 
-    [Header("Function Name")]
-    private string functionName = "";
+    private GameObject slotField;
+    private CanvasGroup slotFieldCanvasGroup;
+
+
 
     [Header("Confirm Button (inside Input Panel)")]
-    public Button confirmButton;
+    private Button confirmButton;
 
 
     private void Start()
     {
+        // Find child elements relative to this Slot GameObject
+        inputPanel = transform.Find("InputPanel")?.gameObject;
+        nameInputField = inputPanel?.transform.Find("InputField")?.GetComponent<TMP_InputField>();
+        confirmButton = inputPanel?.transform.Find("Confirm")?.GetComponent<Button>();
+
+        codeField = transform.Find("CodeField")?.GetComponent<TMP_Text>();
+        slotField = transform.Find("SlotField")?.gameObject;
+        slotFieldCanvasGroup = slotField?.GetComponent<CanvasGroup>();
+
+        showPanel = transform.Find("ShowPanel")?.gameObject;
+        showPanelCardContainer = showPanel?.transform.Find("CardContainer")?.gameObject;
+
+
+
+
         if (inputPanel != null)
+        {
             inputPanel.SetActive(false);
+        }
+        if (showPanel != null)
+        {
+            showPanel.SetActive(false);
+        }
     }
+
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if (inputPanel == null)
-        {
-            Debug.LogWarning("Input Panel is not assigned in the Slot component.");
-            return;
-        }
+
+    }
+
+    public void FieldWasClicked()
+    {
         if (IsEmpty())
         {
             inputPanel.SetActive(true);
@@ -45,6 +71,8 @@ public class Slot : MonoBehaviour, IPointerClickHandler
             // Clean previous listeners and add this slot's own ConfirmFusionName
             confirmButton.onClick.RemoveAllListeners();
             confirmButton.onClick.AddListener(ConfirmFunctionName);
+
+            SetCardsInSlot(originHand.GetSelectedCards());
         }
         else
         {
@@ -58,23 +86,32 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         string typedName = nameInputField.text.Trim();
 
         // Store and display the function name
-        functionName = typedName;
-        functionNameText.text = functionName;
-
-        // Move selected cards to the slot
-        foreach (GameObject card in originHand.GetSelectedCards())
-        {
-            DisplayCode(card);
-            cardsInSlot.Add(card.GetComponent<CardUI>());
-            originHand.RemoveCard(card);
-        }
+        slotField.GetComponent<SlotField>().SetFunctionName(typedName);
 
         inputPanel.SetActive(false);
     }
 
+    public void SetCardsInSlot(List<GameObject> selectedCards)
+    {
+        cardsInSlot.Clear();
+        codeField.text = ""; // Clear previous code
+
+        foreach (GameObject card in selectedCards)
+        {
+            CardUI cardUI = card.GetComponent<CardUI>();
+            if (cardUI != null)
+            {
+                cardsInSlot.Add(cardUI);
+                DisplayCode(card);
+                originHand.RemoveCard(card);
+                card.transform.SetParent(showPanelCardContainer.transform, false);
+            }
+        }
+    }
+
     public string GetFunctionName()
     {
-        return functionName;
+        return slotField.GetComponent<SlotField>().GetFunctionName();
     }
 
     private void DisplayCode(GameObject card)
@@ -89,11 +126,14 @@ public class Slot : MonoBehaviour, IPointerClickHandler
 
     private void ShowCardsInSlot()
     {
-        string cardNames = "Cards in Slot:\n";
-        foreach (CardUI card in cardsInSlot)
-        {
-            cardNames += $"{card.GetCardData().cardText}\n";
-        }
-        Debug.Log(cardNames);
+        slotFieldCanvasGroup.blocksRaycasts = false;
+        showPanel.SetActive(true);
+
+    }
+
+    public void HideShowPanel()
+    {
+        slotFieldCanvasGroup.blocksRaycasts = true;
+        showPanel.SetActive(false);
     }
 }
