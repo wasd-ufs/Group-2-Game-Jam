@@ -1,14 +1,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Represents all of "[...] if (<Variable|Value> <Operation> <Variable|Value>) {[...]}
+// Represents all of "if (<Variable|Value> <Operation> <Variable|Value>) {[...]}
 public class ConditionalToken : Token
 {
     public IValue baseLeftValue = null;
     public IValue baseRightValue = null;
     public ExpressionType expressionType;
     public Scope baseScope = new Scope();
-    public List<AbstractSyntaxTreeNode> preIfContent;
 
     public ConditionalToken(ExpressionType expressionType)
     {
@@ -16,7 +15,6 @@ public class ConditionalToken : Token
         baseLeftValue = null;
         baseRightValue = null;
         baseScope = new Scope();
-        preIfContent = new List<AbstractSyntaxTreeNode>();
     }
     
     public ConditionalToken(ExpressionType expressionType, IValue baseLeftValue, IValue baseRightValue)
@@ -25,7 +23,6 @@ public class ConditionalToken : Token
         this.baseRightValue = baseRightValue;
         this.expressionType = expressionType;
         baseScope = new Scope();
-        preIfContent = new List<AbstractSyntaxTreeNode>();
     }
 
     public ConditionalToken(ExpressionType expressionType, IValue baseLeftValue, IValue baseRightValue,
@@ -35,17 +32,6 @@ public class ConditionalToken : Token
         this.baseLeftValue = baseLeftValue;
         this.baseRightValue = baseRightValue;
         this.baseScope = baseScope;
-        preIfContent = new List<AbstractSyntaxTreeNode>();
-    }
-    
-    public ConditionalToken(ExpressionType expressionType, IValue baseLeftValue, IValue baseRightValue,
-        Scope baseScope, List<AbstractSyntaxTreeNode> preIfContent)
-    {
-        this.expressionType = expressionType;
-        this.baseLeftValue = baseLeftValue;
-        this.baseRightValue = baseRightValue;
-        this.baseScope = baseScope;
-        this.preIfContent = preIfContent;
     }
     
     public override int VariablesRequired() => 0;
@@ -74,7 +60,6 @@ public class ConditionalToken : Token
 
         var newScope = baseScope;
         var conditional = new Conditional(exp, newScope);
-        currentScope.content.AddRange(preIfContent);
         currentScope.content.Add(conditional);
         return newScope;
     }
