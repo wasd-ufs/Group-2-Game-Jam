@@ -14,9 +14,9 @@ public class HandUIController : MonoBehaviour
     private Parser parser = new Parser();
 
     // Adiciona uma nova carta à mão
-    public void AddCard(GameObject card)
+    public void AddCard(GameObject newCard)
     {
-        GameObject newCard = Instantiate(card, handContainer);
+        newCard.transform.SetParent(handContainer);
         CardUI cardUI = newCard.GetComponent<CardUI>();
         cardUI.Setup(this);
         cardUI.OnParserUpdated(parser);

@@ -9,6 +9,6 @@ public class Teste : MonoBehaviour
     void Start()
     {
         foreach (GameObject card in handCards)
-            hand.AddCard(card);
+            hand.AddCard(Instantiate(card));
     }
 }

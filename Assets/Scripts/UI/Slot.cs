@@ -9,6 +9,7 @@ using UnityEngine.Serialization;
 public class Slot : MonoBehaviour, IPointerClickHandler
 {
     private List<CardUI> cardsInSlot = new List<CardUI>();
+    public GameObject emptyCard;
 
     [Header("UI References")]
     private GameObject inputPanel;
@@ -78,9 +79,11 @@ public class Slot : MonoBehaviour, IPointerClickHandler
             
             SetCardsInSlot(originHand.GetSelectedCards(), originHand.GetProgram());
         }
-        else
+        else if (ProgramSlots.PlayerSlots[programSlot] != null)
         {
-            ShowCardsInSlot();
+            originHand.AddCard(GetFunctionCard());
+            ClearSlot();
+            //ShowCardsInSlot();
         }
     }
 
@@ -115,9 +118,13 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         ProgramSlots.PlayerSlots[programSlot] = programNode;
         var code = codeGenerator.Generate(programNode);
         codeField.text = code.GetFullText();
-        
-        var interpreter = new Interpreter();
-        interpreter.Interpret(programNode);
+    }
+
+    public void ClearSlot()
+    {
+        cardsInSlot.Clear();
+        codeField.text = "";
+        ProgramSlots.PlayerSlots[programSlot] = null;
     }
 
     public string GetFunctionName()
@@ -134,12 +141,27 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     {
         slotFieldCanvasGroup.blocksRaycasts = false;
         showPanel.SetActive(true);
-
+        
     }
 
     public void HideShowPanel()
     {
         slotFieldCanvasGroup.blocksRaycasts = true;
         showPanel.SetActive(false);
+    }
+
+    public GameObject GetFunctionCard()
+    {
+        if (ProgramSlots.PlayerSlots[programSlot] == null)
+            return null;
+
+        var card = Instantiate(emptyCard);
+        
+        var programToken = card.AddComponent<ProgramToken>();
+        programToken.Setup(ProgramSlots.PlayerSlots[programSlot]);
+        
+        var cardUI = card.GetComponent<CardUI>();
+        cardUI.cardText.text = slotField.GetComponent<SlotField>().GetFunctionName();
+        return card;
     }
 }

@@ -3084,6 +3084,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 080cf3e3364610d43b2f706f5f28dc5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  emptyCard: {fileID: 6768880855356775129, guid: d9769429829e5254fae456961de09219, type: 3}
   originHand: {fileID: 2061306411}
   cardPrefab: {fileID: 6768880855356775129, guid: d9769429829e5254fae456961de09219, type: 3}
   programSlot: 0

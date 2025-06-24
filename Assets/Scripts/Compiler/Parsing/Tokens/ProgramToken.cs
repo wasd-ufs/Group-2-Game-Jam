@@ -11,6 +11,11 @@ public class ProgramToken : Token
         if (fillers.Count > 0) fillers[0].FillProgram(ref program);
     }
 
+    public void Setup(AbstractSyntaxTreeNode program)
+    {
+        this.program = program;
+    }
+
     public override int VariablesRequired() => 0;
 
     public override int ValuesRequired() => 0;
