@@ -1,14 +1,16 @@
+using System;
 using System.Collections.Generic;
 
 public class ProgramToken : Token
 {
-    public AbstractSyntaxTreeNode program;
+    public AbstractSyntaxTreeNode program = null;
 
-    public ProgramToken(AbstractSyntaxTreeNode program)
+    public void Awake()
     {
-        this.program = program;
+        List<TokenFiller> fillers = new(GetComponents<TokenFiller>());
+        if (fillers.Count > 0) fillers[0].FillProgram(ref program);
     }
-    
+
     public override int VariablesRequired() => 0;
 
     public override int ValuesRequired() => 0;

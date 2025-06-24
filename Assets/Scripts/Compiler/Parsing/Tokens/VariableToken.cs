@@ -2,7 +2,6 @@ using System.Collections.Generic;
 
 public class VariableToken : Token
 {
-    public VariableToken(VariableType variableType) => this.variableType = variableType;
     
     public VariableType variableType;
     public override int VariablesRequired() => 0;

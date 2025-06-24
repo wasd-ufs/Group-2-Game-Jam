@@ -5,34 +5,17 @@ using UnityEngine;
 // Represents all of "while (<Variable|Value> <Operation> <Variable|Value>) {[...]}
 public class WhileToken : Token
 {
-    public IValue baseLeftValue;
-    public IValue baseRightValue;
+    public IValue baseLeftValue = null;
+    public IValue baseRightValue = null;
     public ExpressionType expressionType;
-    public Scope baseScope;
-
-    public WhileToken(ExpressionType expressionType)
-    {
-        this.expressionType = expressionType;
-        baseLeftValue = null;
-        baseRightValue = null;
-        baseScope = new Scope();
-    }
+    public Scope baseScope = new();
     
-    public WhileToken(ExpressionType expressionType, IValue baseLeftValue, IValue baseRightValue)
+    public void Awake()
     {
-        this.baseLeftValue = baseLeftValue;
-        this.baseRightValue = baseRightValue;
-        this.expressionType = expressionType;
-        baseScope = new Scope();
-    }
-
-    public WhileToken(ExpressionType expressionType, IValue baseLeftValue, IValue baseRightValue,
-        Scope baseScope)
-    {
-        this.expressionType = expressionType;
-        this.baseLeftValue = baseLeftValue;
-        this.baseRightValue = baseRightValue;
-        this.baseScope = baseScope;
+        List<TokenFiller> fillers = new(GetComponents<TokenFiller>());
+        if (fillers.Count > 0) fillers[0].FillValue(ref baseLeftValue);
+        if (fillers.Count > 1) fillers[1].FillValue(ref baseRightValue);
+        if (fillers.Count > 2) fillers[2].FillScope(ref baseScope);
     }
     
     public override int VariablesRequired() => 0;

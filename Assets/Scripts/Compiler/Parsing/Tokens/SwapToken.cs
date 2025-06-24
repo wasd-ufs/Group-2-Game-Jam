@@ -2,19 +2,14 @@ using System.Collections.Generic;
 
 public class SwapToken : Token
 {
-    public Variable baseVariableA;
-    public Variable baseVariableB;
-
-    public SwapToken()
+    public Variable baseVariableA = null;
+    public Variable baseVariableB = null;
+    
+    public void Awake()
     {
-        baseVariableA = null;
-        baseVariableB = null;
-    }
-
-    public SwapToken(Variable baseVariableA, Variable baseVariableB)
-    {
-        this.baseVariableA = baseVariableA;
-        this.baseVariableB = baseVariableB;
+        List<TokenFiller> fillers = new(GetComponents<TokenFiller>());
+        if (fillers.Count > 0) fillers[0].FillVariable(ref baseVariableA);
+        if (fillers.Count > 1) fillers[1].FillVariable(ref baseVariableB);
     }
     
     public override int VariablesRequired() => (baseVariableA == null ? 1 : 0) + (baseVariableB == null ? 1 : 0);

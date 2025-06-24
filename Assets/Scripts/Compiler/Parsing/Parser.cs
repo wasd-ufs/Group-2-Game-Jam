@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Parser
 {
-    private readonly Queue<Token> tokens = new();
+    private readonly Stack<Token> tokens = new();
     private int variablesNeeded;
     private int valuesNeeded;
 
@@ -23,6 +23,8 @@ public class Parser
         Push(token);
         return true;
     }
+
+    public Token Pop() => tokens.Pop();
 
     public bool CanPush(Token token)
     {
@@ -54,12 +56,12 @@ public class Parser
                 break;
         }
         
-        tokens.Enqueue(token);
+        tokens.Push(token);
     }
     
     public AbstractSyntaxTreeNode GetProgram()
     {
-        var queue = new Queue<Token>(tokens);
+        var queue = new Queue<Token>(tokens.Reverse());
         Debug.Log(queue.Count);
         
         var currentScope = new Scope();

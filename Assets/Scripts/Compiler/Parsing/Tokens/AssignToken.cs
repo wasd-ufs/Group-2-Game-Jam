@@ -4,13 +4,14 @@ using UnityEngine;
 // Represents all of <Variable> = <Variable|Value>
 public class AssignToken : Token
 {
-    private Variable baseVariable;
-    private IValue baseValue;
+    private Variable baseVariable = null;
+    private IValue baseValue = null;
 
-    public AssignToken(Variable baseVariable, IValue baseValue)
+    public void Awake()
     {
-        this.baseVariable = baseVariable;
-        this.baseValue = baseValue;
+        List<TokenFiller> fillers = new(GetComponents<TokenFiller>());
+        if (fillers.Count > 0) fillers[0].FillVariable(ref baseVariable);
+        if (fillers.Count > 1) fillers[1].FillValue(ref baseValue);
     }
     
     public override int VariablesRequired() => baseVariable != null ? 0 : 1;

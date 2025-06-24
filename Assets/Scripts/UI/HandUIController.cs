@@ -1,24 +1,25 @@
 using System.Collections.Generic;
+using System.Linq;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class HandUIController : MonoBehaviour
 {
-
-
     [Header("Config")]
     public Transform handContainer; // Referência ao HandUI (pai das cartas)
-    public GameObject cardPrefab;   // Prefab da carta
 
     private List<GameObject> handCards = new List<GameObject>();
     private List<GameObject> selectedCards = new List<GameObject>();
+    private Parser parser = new Parser();
 
     // Adiciona uma nova carta à mão
-    public void AddCard(CardData cardData)
+    public void AddCard(GameObject card)
     {
-        GameObject newCard = Instantiate(cardPrefab, handContainer);
+        GameObject newCard = Instantiate(card, handContainer);
         CardUI cardUI = newCard.GetComponent<CardUI>();
-        cardUI.Setup(cardData, this);
+        cardUI.Setup(this);
+        cardUI.OnParserUpdated(parser);
         handCards.Add(newCard);
     }
 
@@ -27,6 +28,7 @@ public class HandUIController : MonoBehaviour
     {
         if (handCards.Contains(card))
         {
+            DeselectCard(card);
             handCards.Remove(card);
         }
     }
@@ -34,18 +36,41 @@ public class HandUIController : MonoBehaviour
     // Remove todas as cartas
     public void ClearHand()
     {
-
         handCards.Clear();
+        selectedCards.Clear();
+        parser.Clear();
     }
 
-    public void SelectCard(CardUI card)
+    public bool TrySelectCard(GameObject card)
     {
-        selectedCards.Add(card.gameObject);
+        if (card.TryGetComponent<Token>(out var token) && parser.TryPush(token))
+        {
+            selectedCards.Add(card);
+            handCards.ForEach(card => card.GetComponent<CardUI>().OnParserUpdated(parser));
+            return true;
+        }
+
+        return false;
     }
 
-    public void DeselectCard(CardUI card)
+    public void DeselectCard(GameObject card)
     {
-        selectedCards.Remove(card.gameObject);
+        parser.Clear();
+        selectedCards.Remove(card);
+        var currentlySelectedCards = new List<GameObject>(selectedCards);
+
+        var closed = false;
+        foreach (var selected in currentlySelectedCards)
+        {
+            if (closed || !parser.TryPush(selected.GetComponent<Token>()))
+            {
+                closed = true;
+                selected.GetComponent<CardUI>().ForceDeselect();
+                selectedCards.Remove(selected);
+            }
+        }
+        
+        handCards.ForEach(card => card.GetComponent<CardUI>().OnParserUpdated(parser));
     }
 
     public List<GameObject> GetSelectedCards()
@@ -57,4 +82,8 @@ public class HandUIController : MonoBehaviour
         }
         return selectedCardsRequested;
     }
+
+    public bool IsProgramExecutable() => parser.IsProgramExecutable();
+    public AbstractSyntaxTreeNode GetProgram() => parser.GetProgram();
+    public bool HasSelectedCards() => selectedCards.Count > 0;
 }

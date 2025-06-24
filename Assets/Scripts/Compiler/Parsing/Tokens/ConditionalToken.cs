@@ -8,30 +8,13 @@ public class ConditionalToken : Token
     public IValue baseRightValue = null;
     public ExpressionType expressionType;
     public Scope baseScope = new Scope();
-
-    public ConditionalToken(ExpressionType expressionType)
-    {
-        this.expressionType = expressionType;
-        baseLeftValue = null;
-        baseRightValue = null;
-        baseScope = new Scope();
-    }
     
-    public ConditionalToken(ExpressionType expressionType, IValue baseLeftValue, IValue baseRightValue)
+    public void Awake()
     {
-        this.baseLeftValue = baseLeftValue;
-        this.baseRightValue = baseRightValue;
-        this.expressionType = expressionType;
-        baseScope = new Scope();
-    }
-
-    public ConditionalToken(ExpressionType expressionType, IValue baseLeftValue, IValue baseRightValue,
-        Scope baseScope)
-    {
-        this.expressionType = expressionType;
-        this.baseLeftValue = baseLeftValue;
-        this.baseRightValue = baseRightValue;
-        this.baseScope = baseScope;
+        List<TokenFiller> fillers = new(GetComponents<TokenFiller>());
+        if (fillers.Count > 0) fillers[0].FillValue(ref baseLeftValue);
+        if (fillers.Count > 1) fillers[1].FillValue(ref baseRightValue);
+        if (fillers.Count > 2) fillers[2].FillScope(ref baseScope);
     }
     
     public override int VariablesRequired() => 0;

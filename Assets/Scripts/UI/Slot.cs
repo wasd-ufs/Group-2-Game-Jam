@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 
 public class Slot : MonoBehaviour, IPointerClickHandler
@@ -25,8 +26,11 @@ public class Slot : MonoBehaviour, IPointerClickHandler
 
     [Header("Confirm Button (inside Input Panel)")]
     private Button confirmButton;
-
-
+    
+    [FormerlySerializedAs("tokenSlot")] [SerializeField] 
+    private int programSlot = 0;
+    private CodeGenerator codeGenerator = new();
+    
     private void Start()
     {
         // Find child elements relative to this Slot GameObject
@@ -62,7 +66,7 @@ public class Slot : MonoBehaviour, IPointerClickHandler
 
     public void FieldWasClicked()
     {
-        if (IsEmpty())
+        if (IsEmpty() && originHand.HasSelectedCards() && originHand.IsProgramExecutable())
         {
             inputPanel.SetActive(true);
             nameInputField.text = "";
@@ -71,8 +75,8 @@ public class Slot : MonoBehaviour, IPointerClickHandler
             // Clean previous listeners and add this slot's own ConfirmFusionName
             confirmButton.onClick.RemoveAllListeners();
             confirmButton.onClick.AddListener(ConfirmFunctionName);
-
-            SetCardsInSlot(originHand.GetSelectedCards());
+            
+            SetCardsInSlot(originHand.GetSelectedCards(), originHand.GetProgram());
         }
         else
         {
@@ -91,7 +95,7 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         inputPanel.SetActive(false);
     }
 
-    public void SetCardsInSlot(List<GameObject> selectedCards)
+    public void SetCardsInSlot(List<GameObject> selectedCards, AbstractSyntaxTreeNode programNode)
     {
         cardsInSlot.Clear();
         codeField.text = ""; // Clear previous code
@@ -102,21 +106,23 @@ public class Slot : MonoBehaviour, IPointerClickHandler
             if (cardUI != null)
             {
                 cardsInSlot.Add(cardUI);
-                DisplayCode(card);
                 originHand.RemoveCard(card);
+                cardUI.OnUsed();
                 card.transform.SetParent(showPanelCardContainer.transform, false);
             }
         }
+
+        ProgramSlots.PlayerSlots[programSlot] = programNode;
+        var code = codeGenerator.Generate(programNode);
+        codeField.text = code.GetFullText();
+        
+        var interpreter = new Interpreter();
+        interpreter.Interpret(programNode);
     }
 
     public string GetFunctionName()
     {
         return slotField.GetComponent<SlotField>().GetFunctionName();
-    }
-
-    private void DisplayCode(GameObject card)
-    {
-        codeField.text += $"{card.GetComponent<CardUI>().GetCardData().cardText}\n";
     }
 
     public bool IsEmpty()

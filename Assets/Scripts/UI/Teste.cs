@@ -1,18 +1,14 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Teste : MonoBehaviour
 {
     public HandUIController hand;
-    public Sprite[] spritesDeTeste;
+    public List<GameObject> handCards = new List<GameObject>();
 
     void Start()
     {
-        for (int i = 0; i < spritesDeTeste.Length; i++)
-        {
-            CardData novaCarta = new CardData();
-            novaCarta.cardText = "Carta " + (i + 1);
-            novaCarta.cardSprite = spritesDeTeste[i];
-            hand.AddCard(novaCarta);
-        }
+        foreach (GameObject card in handCards)
+            hand.AddCard(card);
     }
 }

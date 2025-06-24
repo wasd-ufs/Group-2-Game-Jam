@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using UnityEngine;
 
-public abstract class Token
+public abstract class Token : MonoBehaviour
 {
     public abstract int VariablesRequired();
     public abstract int ValuesRequired();

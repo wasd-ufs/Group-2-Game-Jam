@@ -1300,11 +1300,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hand: {fileID: 2061306411}
-  spritesDeTeste:
-  - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  handCards:
+  - {fileID: 2294330366496558675, guid: 626e07da9facfc1e2a5190b8bd1a2335, type: 3}
+  - {fileID: 1801197621183848692, guid: c0db18cc47ec5ca5d94093ac0e623bae, type: 3}
+  - {fileID: 1021724892775149627, guid: e2382a2564f558fc397424e98855e578, type: 3}
+  - {fileID: 2294330366496558675, guid: 626e07da9facfc1e2a5190b8bd1a2335, type: 3}
+  - {fileID: 6834775202574888135, guid: 76e031753582517a68864bd43ffcad52, type: 3}
+  - {fileID: 3073547518634992389, guid: ad9d33c258ab4c8e694f9bd2546960ce, type: 3}
+  - {fileID: 961738884133854625, guid: 1197272759e410fdfbeeb354cd39d195, type: 3}
 --- !u!4 &659077039
 Transform:
   m_ObjectHideFlags: 0
@@ -3083,6 +3086,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   originHand: {fileID: 2061306411}
   cardPrefab: {fileID: 6768880855356775129, guid: d9769429829e5254fae456961de09219, type: 3}
+  programSlot: 0
 --- !u!1 &1789569804
 GameObject:
   m_ObjectHideFlags: 0
@@ -3744,7 +3748,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handContainer: {fileID: 2061306408}
-  cardPrefab: {fileID: 6768880855356775129, guid: d9769429829e5254fae456961de09219, type: 3}
 --- !u!1 &2070341037
 GameObject:
   m_ObjectHideFlags: 0

@@ -3,6 +3,14 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
+public enum CardState
+{
+    InUse,
+    Selected,
+    Unselected,
+    Disabled
+}
+
 public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
     public Image artImage;
@@ -14,10 +22,11 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     private Vector3 originalScale;
 
     private Canvas canvas;
-    private bool isSelected = false;
+    private CardState state = CardState.Unselected;
 
     private Color normalColor = Color.white;
     private Color selectedColor = Color.yellow;
+    private Color disabledColor = Color.darkGray;
 
     private void Awake()
     {
@@ -25,23 +34,23 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
         originalScale = transform.localScale;
     }
 
-    public void Setup(CardData data, HandUIController handUIController)
+    public void Setup(HandUIController handUIController)
     {
-        cardData = data;
-        cardText.text = data.cardText;
-        artImage.sprite = data.cardSprite;
         originHand = handUIController;
     }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        transform.localScale = originalScale * 1.2f;
+        if (IsSelected() || IsUnselected())
+        {
+            transform.localScale = originalScale * 1.2f;
+        }
         canvas.sortingOrder += 100;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (!isSelected)
+        if (IsUnselected() || IsDisabled())
         {
             transform.localScale = originalScale;
         }
@@ -50,15 +59,24 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        originHand.SelectCard(this);
-        isSelected = !isSelected;
-        UpdateVisualFeedback();
+        if (IsSelected())
+        {
+            Deselect();
+            return;
+        }
+        
+        if (IsUnselected() && originHand.TrySelectCard(gameObject))
+        {
+            state = CardState.Selected;
+            UpdateVisualFeedback();
+            return;
+        }
     }
 
     private void UpdateVisualFeedback()
     {
-        GetComponent<Image>().color = isSelected ? selectedColor : normalColor;
-        if (isSelected)
+        GetComponent<Image>().color = IsSelected() ? selectedColor : IsDisabled() ? disabledColor : normalColor;
+        if (IsSelected())
         {
             transform.localScale = originalScale * 1.2f;
         }
@@ -68,12 +86,37 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
         }
     }
 
-    public bool IsSelected() => isSelected;
+    public void OnParserUpdated(Parser parser)
+    {
+        if (state == CardState.Unselected && !parser.CanPush(GetComponent<Token>()))
+        {
+            state = CardState.Disabled;
+            UpdateVisualFeedback();
+        }
+
+        if (state == CardState.Disabled && parser.CanPush(GetComponent<Token>()))
+        {
+            state = CardState.Unselected;
+            UpdateVisualFeedback();
+        }
+    }
+
+    public void ForceDeselect()
+    {
+        state = CardState.Unselected;
+        UpdateVisualFeedback();
+    }
 
     public void Deselect()
     {
-        originHand.DeselectCard(this);
-        isSelected = false;
+        originHand.DeselectCard(gameObject);
+        state = CardState.Unselected;
+        UpdateVisualFeedback();
+    }
+
+    public void OnUsed()
+    {
+        state = CardState.InUse;
         UpdateVisualFeedback();
     }
 
@@ -81,4 +124,9 @@ public class CardUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     {
         return cardData;
     }
+    
+    public bool IsSelected() => state == CardState.Selected;
+    public bool IsUnselected() => state == CardState.Unselected;
+    public bool IsDisabled() => state == CardState.Disabled;
+    public bool IsInUse() => state == CardState.InUse;
 }

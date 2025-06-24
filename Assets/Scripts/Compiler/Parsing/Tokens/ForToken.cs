@@ -5,37 +5,20 @@ using UnityEngine;
 // Represents all of "<Variable> = <StartValue> while (<Variable> <= <EndValue>) {[...] <Variable> += <IncrementValue>}
 public class ForToken : Token
 {
-    public Variable baseIndex;
-    public IValue baseStart;
-    public IValue baseEnd;
-    public IValue baseIncrement;
-    public Scope baseScope;
+    public Variable baseIndex = null;
+    public IValue baseStart = null;
+    public IValue baseEnd = null;
+    public IValue baseIncrement = null;
+    public Scope baseScope = new();
 
-    public ForToken()
+    public void Awake()
     {
-        baseIndex = null;
-        baseStart = null;
-        baseEnd = null;
-        baseIncrement = null;
-        baseScope = new Scope();
-    }
-
-    public ForToken(IValue baseStart, IValue baseEnd, IValue baseIncrement)
-    {
-        baseIndex = null;
-        this.baseStart = baseStart;
-        this.baseEnd = baseEnd;
-        this.baseIncrement = baseIncrement;
-        baseScope = new Scope();
-    }
-
-    public ForToken(Variable baseIndex, IValue baseStart, IValue baseEnd, IValue baseIncrement, Scope baseScope)
-    {
-        this.baseIndex = baseIndex;
-        this.baseStart = baseStart;
-        this.baseEnd = baseEnd;
-        this.baseIncrement = baseIncrement;
-        this.baseScope = baseScope;
+        List<TokenFiller> fillers = new(GetComponents<TokenFiller>());
+        if (fillers.Count > 0) fillers[0].FillVariable(ref baseIndex);
+        if (fillers.Count > 1) fillers[1].FillValue(ref baseStart);
+        if (fillers.Count > 2) fillers[2].FillValue(ref baseEnd);
+        if (fillers.Count > 3) fillers[3].FillValue(ref baseIncrement);
+        if (fillers.Count > 4) fillers[4].FillScope(ref baseScope);
     }
 
     public override int VariablesRequired() => baseIndex != null ? 0 : 1;
