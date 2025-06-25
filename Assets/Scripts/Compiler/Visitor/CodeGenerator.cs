@@ -16,6 +16,7 @@ public class Code
     public string GetFullText() => string.Join(Environment.NewLine, lines);
     public string GetLine(int index) => lines[index];
     public string GetLineOfNode(AbstractSyntaxTreeNode node) => GetLine(lineOfNode[node]);
+    public int GetLineIndexOfNode(AbstractSyntaxTreeNode node) => lineOfNode[node];
     public List<string> GetLines() => lines;
 }
 
@@ -26,10 +27,10 @@ public class CodeGenerator : AbstractSyntaxTreeVisitor
     private readonly Dictionary<AbstractSyntaxTreeNode, int> nodesToLines = new();
 
     public string placeholderString = "__________";
-    public string variable1Name = "a";
-    public string variable2Name = "b";
-    public string variable3Name = "c";
-    public string variable4Name = "d";
+    public string variable1Name = "variable1";
+    public string variable2Name = "variable2";
+    public string variable3Name = "variable3";
+    public string variable4Name = "variable4";
 
     public Code Generate(AbstractSyntaxTreeNode tree)
     {

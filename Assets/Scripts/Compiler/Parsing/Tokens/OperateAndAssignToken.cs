@@ -4,7 +4,7 @@ using UnityEngine;
 // Represents all of <Variable> = <Variable> <Operation> <Variable|Value>
 public class OperateAndAssignToken : Token
 {
-    private ExpressionType expressionType;
+    public ExpressionType expressionType;
     private Variable baseVariable = null;
     private IValue baseValue = null;
 

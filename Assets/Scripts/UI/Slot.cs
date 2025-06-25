@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using TMPro;
@@ -12,7 +13,7 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     public GameObject emptyCard;
 
     [Header("UI References")]
-    private GameObject inputPanel;
+    public InputPanel inputPanel;
     private TMP_InputField nameInputField;
     private TMP_Text codeField;
     private GameObject showPanel;
@@ -22,9 +23,7 @@ public class Slot : MonoBehaviour, IPointerClickHandler
 
     private GameObject slotField;
     private CanvasGroup slotFieldCanvasGroup;
-
-
-
+    
     [Header("Confirm Button (inside Input Panel)")]
     private Button confirmButton;
     
@@ -34,29 +33,38 @@ public class Slot : MonoBehaviour, IPointerClickHandler
     
     private void Start()
     {
-        // Find child elements relative to this Slot GameObject
-        inputPanel = transform.Find("InputPanel")?.gameObject;
-        nameInputField = inputPanel?.transform.Find("InputField")?.GetComponent<TMP_InputField>();
-        confirmButton = inputPanel?.transform.Find("Confirm")?.GetComponent<Button>();
-
         codeField = transform.Find("CodeField")?.GetComponent<TMP_Text>();
         slotField = transform.Find("SlotField")?.gameObject;
         slotFieldCanvasGroup = slotField?.GetComponent<CanvasGroup>();
 
         showPanel = transform.Find("ShowPanel")?.gameObject;
         showPanelCardContainer = showPanel?.transform.Find("CardContainer")?.gameObject;
-
-
-
-
+        
+        inputPanel.onShowPanel.AddListener(() =>
+        {
+            slotFieldCanvasGroup.blocksRaycasts = false;
+            slotFieldCanvasGroup.interactable = false;
+        });
+        inputPanel.onHidePanel.AddListener(() =>
+        {
+            slotFieldCanvasGroup.blocksRaycasts = true;
+            slotFieldCanvasGroup.interactable = true;
+        });
+        
         if (inputPanel != null)
         {
-            inputPanel.SetActive(false);
+            inputPanel.Hide();
         }
         if (showPanel != null)
         {
             showPanel.SetActive(false);
         }
+        
+        GameManager.onProgrammingPhaseEntered.AddListener(() =>
+        {
+            if (ProgramSlots.PlayerSlots[programSlot] == null)
+                ClearSlot();
+        });
     }
 
 
@@ -67,17 +75,20 @@ public class Slot : MonoBehaviour, IPointerClickHandler
 
     public void FieldWasClicked()
     {
+        if (inputPanel.IsShowing())
+            return;
+        
         if (IsEmpty() && originHand.HasSelectedCards() && originHand.IsProgramExecutable())
         {
-            inputPanel.SetActive(true);
-            nameInputField.text = "";
-            nameInputField.ActivateInputField();
-
             // Clean previous listeners and add this slot's own ConfirmFusionName
-            confirmButton.onClick.RemoveAllListeners();
-            confirmButton.onClick.AddListener(ConfirmFunctionName);
-            
-            SetCardsInSlot(originHand.GetSelectedCards(), originHand.GetProgram());
+            inputPanel.Show();
+            inputPanel.onNameInputed.RemoveAllListeners();
+            inputPanel.onNameInputed.AddListener(programName =>
+            {
+                slotField.GetComponent<SlotField>().SetFunctionName(programName);
+                SetCardsInSlot(originHand.GetSelectedCards(), originHand.GetProgram());
+                inputPanel.Hide();
+            });
         }
         else if (ProgramSlots.PlayerSlots[programSlot] != null)
         {
@@ -93,9 +104,9 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         string typedName = nameInputField.text.Trim();
 
         // Store and display the function name
-        slotField.GetComponent<SlotField>().SetFunctionName(typedName);
+        
 
-        inputPanel.SetActive(false);
+        inputPanel.Hide();
     }
 
     public void SetCardsInSlot(List<GameObject> selectedCards, AbstractSyntaxTreeNode programNode)
@@ -120,10 +131,16 @@ public class Slot : MonoBehaviour, IPointerClickHandler
         codeField.text = code.GetFullText();
     }
 
+    public void OnFunctionNameInputed(string functionName)
+    {
+        
+    }
+
     public void ClearSlot()
     {
         cardsInSlot.Clear();
         codeField.text = "";
+        slotField.GetComponent<SlotField>().SetFunctionName("");
         ProgramSlots.PlayerSlots[programSlot] = null;
     }
 
